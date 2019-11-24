@@ -15,9 +15,11 @@ config({
 const client = new Client();
 client.login(process.env.D_TOKEN);
 // 
+let state;
 // 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
+    state = true;
     // 
     client.user.setPresence({
         game: {
