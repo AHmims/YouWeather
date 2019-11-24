@@ -33,7 +33,7 @@ client.on('ready', () => {
 });
 // 
 const resources = {
-    forcastLogo: "https://raw.githubusercontent.com/AHmims/YouWeather/master/res/img/weather-logo.png",
+    forcastLogo: "https://raw.githubusercontent.com/AHmims/YouWeather/master/res/img/YouWeather.png",
     emojis: {
         sunCloud: ":white_sun_cloud:"
     }
