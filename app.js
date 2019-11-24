@@ -9,11 +9,11 @@ const {
     config
 } = require("dotenv");
 config({
-    path: __dirname + "/.env"
+    path: __dirname + "/config/.env"
 });
+// 
 const client = new Client();
 client.login(process.env.D_TOKEN);
-
 // 
 // 
 client.on('ready', () => {
@@ -34,27 +34,29 @@ client.on('ready', () => {
 // 
 const resources = {
     forcastLogo: "https://raw.githubusercontent.com/AHmims/YouWeather/master/res/img/YouWeather.png",
+    github: "https://raw.githubusercontent.com/AHmims/YouWeather/master/res/icons/github.png",
     emojis: {
-        sunCloud: ":white_sun_cloud:"
+        sunny: ":sunny:",
+        sunCloud: ":white_sun_cloud:",
+        rain: ":cloud_rain:",
+        cloudy: ":cloud:",
+        sun: ":sun_with_face:",
+        moon: ":crescent_moon:"
     }
 };
 // 
-// 
 client.on('message', async msg => {
+    const nbData = 5;
     if (msg.content === '*weather') {
-        // msg.reply('Pong!');
         let data = await requestData(OpenWeatherMap_APIcalls.list);
-        // msg.reply(data.base);
-        // msg.channel.send(data.base);
         // 
-        const DataToGet = ["temp", "humidity", "weather", "rain", "wind"];
         let table = new AsciiTable();
         table
             .setBorder('║', '═', '╔', '╝')
             .setHeading('', 'Temp', 'Humi', 'Sky', 'Rain', 'Wind')
         // 
         let forcast = [];
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < nbData; i++) {
             forcast.push(getForcastByDT(data.list, data.list[i].dt))
         }
         table.addRowMatrix(forcast);
@@ -64,10 +66,11 @@ client.on('message', async msg => {
             client: "3li",
             description: `Showing Data for : ${getDate()}`,
             color: "35583",
-            thumbnail: {
+            /*thumbnail: {
                 url: resources.forcastLogo,
-                width: 100
-            },
+                width: 1,
+                height: 1
+            },*/
 
             fields: [{
                     name: "This bot Uses the OpenWeatherMap forcast data.",
@@ -76,18 +79,27 @@ client.on('message', async msg => {
                 },
                 {
                     name: "Forcast :",
-                    value: "```" + `${table.toString()}` + "```"
+                    value: "```" + `${table.toString()}` + "```",
+                    inline: false
+                },
+                {
+                    name: `Sunrise ${resources.emojis.sun} :`,
+                    value: `${convertFromUnix(data.city.sunrise,"time")}`,
+                    inline: true
+                },
+                {
+                    name: `Sunset ${resources.emojis.moon} :`,
+                    value: `${convertFromUnix(data.city.sunset,"time")}`,
+                    inline: true
                 }
             ],
             footer: {
-                text: "test",
-                icon_url: "https://cdn3.iconfinder.com/data/icons/social-icons-5/606/Twitter.png"
+                text: "[A project by: Ali Hmims] https://github.com/AHmims/YouWeather",
+                icon_url: resources.github
             }
         }));
     }
 });
-//
-// 
 // 
 //
 const cityID = "2537878";
@@ -102,12 +114,6 @@ const OpenWeatherMap_APIcalls = {
     uvIndex: `https://api.openweathermap.org/data/2.5/uvi?lat=${cityCords.lat}&lon=${cityCords.lon}&appid=${process.env.OpenWheather_TOKEN}`
 }
 // 
-const interval = 1000;
-// 
-/*setInterval(async () => {
-    var data = await requestData(OpenWeatherMap_APIcalls.current);
-    console.log(data.base);
-}, interval);*/
 // 
 async function requestData(url) {
     let data = null;
@@ -123,14 +129,13 @@ async function requestData(url) {
     // 
     return data;
 }
-//         const DataToGet = ["temp", "humidity", "weather", "rain", "wind"];
 
 function getForcastByDT(list, id) {
-    let res = [null, null, null, null, "null", null];
+    let res = [null, null, null, null, "0.00mm", null];
     // 
     list.forEach(element => {
         if (element.dt == id) {
-            res[0] = convertFromUnix(element.dt, "time");
+            res[0] = `${convertFromUnix(element.dt, "time")}0`;
             res[1] = `${convertFromKelvin(element.main.temp)}°C`;
             res[2] = `${element.main.humidity}%`;
             res[3] = element.weather[0].main;
