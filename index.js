@@ -1,5 +1,6 @@
 // const Discord = require('discord.js');
 const request = require('request-promise');
+var AsciiTable = require('ascii-table');
 const {
     Client,
     RichEmbed
@@ -33,20 +34,35 @@ client.on('ready', () => {
 // 
 const resources = {
     forcastLogo: "https://raw.githubusercontent.com/AHmims/YouWeather/master/res/img/weather-logo.png",
-    normalWeather: "https://raw.githubusercontent.com/AHmims/YouWeather/master/res/icons/icon-1.png"
+    emojis: {
+        sunCloud: ":white_sun_cloud:"
+    }
 };
-//  
+// 
+// 
 client.on('message', async msg => {
-    if (msg.content === '*ping') {
+    if (msg.content === '*weather') {
         // msg.reply('Pong!');
-        var data = await requestData(OpenWeatherMap_APIcalls.current);
+        let data = await requestData(OpenWeatherMap_APIcalls.list);
         // msg.reply(data.base);
         // msg.channel.send(data.base);
+        // 
+        const DataToGet = ["temp", "humidity", "weather", "rain", "wind"];
+        let table = new AsciiTable();
+        table
+            .setBorder('║', '═', '╔', '╝')
+            .setHeading('', 'Temp', 'Humi', 'Sky', 'Rain', 'Wind')
+        // 
+        let forcast = [];
+        for (let i = 0; i < 5; i++) {
+            forcast.push(getForcastByDT(data.list, data.list[i].dt))
+        }
+        table.addRowMatrix(forcast);
+        // 
         msg.channel.send(new RichEmbed({
-            image: resources.normalWeather,
-            title: "Weather Forcast For Safi :",
+            title: `${resources.emojis.sunCloud} Weather Forcast For Safi :`,
             client: "3li",
-            // description: "gg",
+            description: `Showing Data for : ${getDate()}`,
             color: "35583",
             thumbnail: {
                 url: resources.forcastLogo,
@@ -54,19 +70,13 @@ client.on('message', async msg => {
             },
 
             fields: [{
-                    name: "A",
-                    value: "AAA",
-                    inline: false,
+                    name: "This bot Uses the OpenWeatherMap forcast data.",
+                    value: "This services runs periodically every 3 hours !",
+                    inline: false
                 },
                 {
-                    name: "B",
-                    value: "BBB",
-                    inline: true
-                },
-                {
-                    name: "C",
-                    value: "CCC",
-                    inline: true
+                    name: "Forcast :",
+                    value: "```" + `${table.toString()}` + "```"
                 }
             ],
             footer: {
@@ -112,4 +122,61 @@ async function requestData(url) {
         data = JSON.parse(result.body);
     // 
     return data;
+}
+//         const DataToGet = ["temp", "humidity", "weather", "rain", "wind"];
+
+function getForcastByDT(list, id) {
+    let res = [null, null, null, null, "null", null];
+    // 
+    list.forEach(element => {
+        if (element.dt == id) {
+            res[0] = convertFromUnix(element.dt, "time");
+            res[1] = `${convertFromKelvin(element.main.temp)}°C`;
+            res[2] = `${element.main.humidity}%`;
+            res[3] = element.weather[0].main;
+            if (element.weather[0].main == "Rain")
+                res[4] = element.rain["3h"];
+            res[5] = `${element.wind.speed}m/s`;
+        }
+    });
+    // 
+    return res;
+}
+// 
+function getDate() {
+    var res = new Date();
+    // 
+    var month = res.getMonth();
+    if (month < 12) month += 1;
+    // 
+    res = `${res.getHours()}:${res.getMinutes()} - ${res.getDate()}/${month}/${res.getFullYear()}`;
+    // 
+    return res;
+}
+
+function convertFromUnix(timeStamp, retValue) {
+    let ret = new Date(timeStamp * 1000);
+    // 
+    let month = ret.getMonth();
+    if (month < 12) month += 1;
+    // 
+    switch (retValue) {
+        case "full":
+            ret = `${ret.getHours()}:${ret.getMinutes()} - ${ret.getDate()}/${month}/${ret.getFullYear()}`;
+            break;
+        case "date":
+            ret = `${ret.getDate()}/${month}/${ret.getFullYear()}`;
+            break;
+        case "time":
+            ret = `${ret.getHours()}:${ret.getMinutes()}`;
+            break;
+    }
+    // 
+    return ret;
+}
+
+function convertFromKelvin(degree) {
+    const FormulaValue = 272.15;
+    // 
+    return Math.floor(degree - FormulaValue);
 }
