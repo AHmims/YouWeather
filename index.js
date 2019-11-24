@@ -32,7 +32,8 @@ client.on('ready', () => {
 });
 // 
 const resources = {
-    forcastLogo: "https://raw.githubusercontent.com/AHmims/YouWeather/master/logo.jpg"
+    forcastLogo: "https://raw.githubusercontent.com/AHmims/YouWeather/master/res/img/weather-logo.png",
+    normalWeather: "https://raw.githubusercontent.com/AHmims/YouWeather/master/res/icons/icon-1.png"
 };
 //  
 client.on('message', async msg => {
@@ -42,7 +43,8 @@ client.on('message', async msg => {
         // msg.reply(data.base);
         // msg.channel.send(data.base);
         msg.channel.send(new RichEmbed({
-            // title: "ff",
+            image: resources.normalWeather,
+            title: "Weather Forcast For Safi :",
             client: "3li",
             // description: "gg",
             color: "35583",
@@ -52,7 +54,7 @@ client.on('message', async msg => {
             },
 
             fields: [{
-                    name: "Weather Forcast For Safi :",
+                    name: "A",
                     value: "AAA",
                     inline: false,
                 },
