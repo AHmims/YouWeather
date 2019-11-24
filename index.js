@@ -30,7 +30,11 @@ client.on('ready', () => {
         status: "idle"
     });
 });
-
+// 
+const resources = {
+    forcastLogo: "https://raw.githubusercontent.com/AHmims/YouWeather/master/logo.jpg"
+};
+//  
 client.on('message', async msg => {
     if (msg.content === '*ping') {
         // msg.reply('Pong!');
@@ -43,7 +47,7 @@ client.on('message', async msg => {
             // description: "gg",
             color: "35583",
             thumbnail: {
-                url: "/logo.jpg",
+                url: resources.forcastLogo,
                 width: 100
             },
 
